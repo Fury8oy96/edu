@@ -17,7 +17,17 @@ class StudentsFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
+            'password' => bcrypt('password'), // Default password for testing
+            'profession' => fake()->jobTitle(),
+            'avatar' => null,
+            'bio' => fake()->sentence(),
+            'skills' => null,
+            'experience' => fake()->paragraph(),
+            'education' => fake()->sentence(),
+            'certifications' => null,
+            'status' => 'active',
         ];
     }
 }

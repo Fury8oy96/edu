@@ -13,8 +13,15 @@ return new class extends Migration
     {
         // Remove broken foreign keys from instructors table
         Schema::table('instructors', function (Blueprint $table) {
+            // Drop indexes first (SQLite requirement)
+            $table->dropIndex(['course_id']);
+            $table->dropIndex(['lesson_id']);
+            
+            // Then drop foreign keys
             $table->dropForeign(['course_id']);
             $table->dropForeign(['lesson_id']);
+            
+            // Finally drop columns
             $table->dropColumn(['course_id', 'lesson_id']);
         });
     }
