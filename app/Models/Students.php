@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 
-class Students extends Model
+class Students extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\StudentsFactory> */
     use HasFactory, Notifiable, HasApiTokens;
@@ -44,7 +45,7 @@ class Students extends Model
 
     public function courses(): BelongsToMany
     {
-        return $this->belongsToMany(Courses::class, 'course_student')
+        return $this->belongsToMany(Courses::class, 'course_student', 'student_id', 'course_id')
                     ->withPivot('enrolled_at', 'status', 'progress_percentage')
                     ->withTimestamps();
     }
@@ -114,5 +115,40 @@ class Students extends Model
     {
         $this->email_verified_at = now();
         $this->clearOTP();
+    }
+
+    /**
+     * Get all payments for this student
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'student_id');
+    }
+
+    /**
+     * Check if student has an active subscription
+     * 
+     * @return bool
+     */
+    public function hasActiveSubscription(): bool
+    {
+        return $this->payments()
+            ->where('status', 'approved')
+            ->where('subscription_expires_at', '>', now())
+            ->exists();
+    }
+
+    /**
+     * Get the active subscription payment record
+     * 
+     * @return Payment|null
+     */
+    public function getActiveSubscription(): ?Payment
+    {
+        return $this->payments()
+            ->where('status', 'approved')
+            ->where('subscription_expires_at', '>', now())
+            ->orderBy('subscription_expires_at', 'desc')
+            ->first();
     }
 }

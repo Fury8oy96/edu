@@ -50,17 +50,17 @@ class Courses extends Model
 
     public function modules(): HasMany
     {
-        return $this->hasMany(Modules::class);
+        return $this->hasMany(Modules::class, 'course_id');
     }
 
     public function lessons(): HasMany
     {
-        return $this->hasMany(Lessons::class);
+        return $this->hasMany(Lessons::class, 'course_id');
     }
 
     public function students(): BelongsToMany
     {
-        return $this->belongsToMany(Students::class, 'course_student')
+        return $this->belongsToMany(Students::class, 'course_student', 'course_id', 'student_id')
                     ->withPivot('enrolled_at', 'status', 'progress_percentage')
                     ->withTimestamps();
     }

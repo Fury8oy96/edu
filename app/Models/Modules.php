@@ -36,6 +36,6 @@ class Modules extends Model
 
     public function lessons(): HasMany
     {
-        return $this->hasMany(Lessons::class);
+        return $this->hasMany(Lessons::class, 'module_id');
     }
 }

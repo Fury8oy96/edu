@@ -17,7 +17,15 @@ class LessonsFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'title' => fake()->sentence(4),
+            'description' => fake()->paragraph(),
+            'video_url' => fake()->url(),
+            'duration' => fake()->numberBetween(10, 60) . ' minutes',
+            'module_id' => \App\Models\Modules::factory(),
+            'outcomes' => fake()->sentence(),
+            'keywords' => fake()->words(3, true),
+            'requirements' => fake()->sentence(),
+            'tags' => json_encode(fake()->words(3)),
         ];
     }
 }
