@@ -11,19 +11,42 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Remove broken foreign keys from instructors table
-        Schema::table('instructors', function (Blueprint $table) {
-            // Drop indexes first (SQLite requirement)
-            $table->dropIndex(['course_id']);
-            $table->dropIndex(['lesson_id']);
-            
-            // Then drop foreign keys
-            $table->dropForeign(['course_id']);
-            $table->dropForeign(['lesson_id']);
-            
-            // Finally drop columns
-            $table->dropColumn(['course_id', 'lesson_id']);
-        });
+        $driver = Schema::getConnection()->getDriverName();
+        
+        if ($driver === 'sqlite') {
+            // SQLite doesn't support dropping columns with foreign keys well
+            // So we recreate the table without those columns
+            Schema::dropIfExists('instructors');
+            Schema::create('instructors', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('email');
+                $table->string('bio');
+                $table->string('avatar');
+                $table->text('skills');
+                $table->text('experience');
+                $table->text('education');
+                $table->text('certifications');
+                $table->string('facebook');
+                $table->string('twitter');
+                $table->string('instagram');
+                $table->string('linkedin');
+                $table->string('youtube');
+                $table->string('website');
+                $table->string('github');
+                $table->timestamps();
+            });
+        } else {
+            // For MySQL/PostgreSQL, drop the columns normally
+            Schema::table('instructors', function (Blueprint $table) {
+                // Drop foreign keys first
+                $table->dropForeign(['course_id']);
+                $table->dropForeign(['lesson_id']);
+                
+                // Then drop columns
+                $table->dropColumn(['course_id', 'lesson_id']);
+            });
+        }
     }
 
     /**

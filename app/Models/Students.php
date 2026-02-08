@@ -27,6 +27,7 @@ class Students extends Authenticatable
         'education',
         'certifications',
         'status',
+        'email_verified_at',
     ];
 
     protected $hidden = [
