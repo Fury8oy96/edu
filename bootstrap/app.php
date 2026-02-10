@@ -22,5 +22,20 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Handle Assessment exceptions
+        $exceptions->renderable(function (\App\Exceptions\Assessment\AssessmentException $e, $request) {
+            $response = [
+                'error' => [
+                    'code' => $e->getErrorCode(),
+                    'message' => $e->getMessage(),
+                ]
+            ];
+            
+            // Add additional context for specific exceptions
+            if ($e instanceof \App\Exceptions\Assessment\PrerequisitesNotMetException) {
+                $response['error']['unmet_prerequisites'] = $e->getUnmetPrerequisites();
+            }
+            
+            return response()->json($response, $e->getStatusCode());
+        });
     })->create();

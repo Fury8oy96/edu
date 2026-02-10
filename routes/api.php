@@ -5,6 +5,15 @@ use App\Http\Controllers\Api\V1\CourseController;
 use App\Http\Controllers\Api\V1\SubscriptionController;
 use App\Http\Controllers\Api\V1\BlogPostController;
 use App\Http\Controllers\Api\V1\Admin\AdminPaymentController;
+use App\Http\Controllers\Api\V1\QuizController;
+use App\Http\Controllers\Api\V1\QuizAttemptController;
+use App\Http\Controllers\Api\V1\CertificateController;
+use App\Http\Controllers\Api\V1\VerificationController;
+use App\Http\Controllers\Api\V1\Admin\AdminCertificateController;
+use App\Http\Controllers\Api\V1\Admin\AdminCertificateAnalyticsController;
+use App\Http\Controllers\Api\V1\EventController;
+use App\Http\Controllers\Api\V1\RegistrationController;
+use App\Http\Controllers\Api\V1\ParticipationController;
 use App\Http\Controllers\StudentProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +46,9 @@ Route::prefix('v1')->group(function () {
     
     // Public blog comment routes
     Route::get('/blog-posts/{blogPostId}/comments', [\App\Http\Controllers\Api\V1\BlogCommentController::class, 'index']);
+    
+    // Public certificate verification route
+    Route::get('/verify/{certificateId}', [VerificationController::class, 'verify']);
 });
 
 // Protected routes (authentication required)
@@ -79,6 +91,39 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
         
         // Protected blog reaction routes
         Route::post('/blog-posts/{blogPostId}/reactions', [\App\Http\Controllers\Api\V1\BlogReactionController::class, 'toggle']);
+        
+        // Quiz routes
+        Route::get('/quizzes/{id}', [QuizController::class, 'show']);
+        Route::post('/quizzes/{quizId}/attempts', [QuizAttemptController::class, 'start']);
+        Route::post('/quiz-attempts/{attemptId}/submit', [QuizAttemptController::class, 'submit']);
+        Route::get('/quiz-attempts/{attemptId}', [QuizAttemptController::class, 'show']);
+        Route::get('/quizzes/{quizId}/attempts', [QuizAttemptController::class, 'index']);
+        
+        // Assessment routes
+        Route::get('/assessments/{assessment}', [\App\Http\Controllers\Api\V1\AssessmentController::class, 'show']);
+        Route::post('/assessments/{assessment}/start', [\App\Http\Controllers\Api\V1\AssessmentController::class, 'start']);
+        Route::get('/assessments/{assessment}/history', [\App\Http\Controllers\Api\V1\AssessmentController::class, 'history']);
+        Route::post('/assessment-attempts/{attempt}/submit', [\App\Http\Controllers\Api\V1\AssessmentAttemptController::class, 'submit']);
+        Route::get('/assessment-attempts/{attempt}/remaining-time', [\App\Http\Controllers\Api\V1\AssessmentAttemptController::class, 'remainingTime']);
+        Route::get('/assessment-attempts/{attempt}', [\App\Http\Controllers\Api\V1\AssessmentAttemptController::class, 'show']);
+        
+        // Certificate routes
+        Route::get('/certificates', [CertificateController::class, 'index']);
+        Route::get('/certificates/{certificateId}', [CertificateController::class, 'show']);
+        Route::get('/certificates/{certificateId}/download', [CertificateController::class, 'download']);
+        
+        // Event routes (Requirement 11.1)
+        Route::get('/events/upcoming', [EventController::class, 'upcoming']);
+        Route::get('/events/ongoing', [EventController::class, 'ongoing']);
+        Route::get('/events/past', [EventController::class, 'past']);
+        Route::get('/events/{id}', [EventController::class, 'show']);
+        
+        // Event registration routes
+        Route::post('/events/{eventId}/register', [RegistrationController::class, 'register']);
+        Route::delete('/events/{eventId}/unregister', [RegistrationController::class, 'unregister']);
+        
+        // Event participation routes
+        Route::post('/events/{eventId}/join', [ParticipationController::class, 'join']);
     });
 });
 
@@ -88,4 +133,11 @@ Route::prefix('v1/admin')->middleware(['auth:sanctum', 'admin'])->group(function
     Route::post('/payments/{payment}/approve', [AdminPaymentController::class, 'approve']);
     Route::post('/payments/{payment}/reject', [AdminPaymentController::class, 'reject']);
     Route::get('/payments', [AdminPaymentController::class, 'history']);
+    
+    // Admin certificate routes
+    Route::get('/certificates', [AdminCertificateController::class, 'index']);
+    Route::get('/certificates/{certificateId}', [AdminCertificateController::class, 'show']);
+    Route::post('/certificates', [AdminCertificateController::class, 'store']);
+    Route::post('/certificates/{certificateId}/revoke', [AdminCertificateController::class, 'revoke']);
+    Route::get('/certificates/analytics', [AdminCertificateAnalyticsController::class, 'index']);
 });

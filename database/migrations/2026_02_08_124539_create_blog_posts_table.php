@@ -29,7 +29,7 @@ return new class extends Migration
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
             
             // Indexes
-            $table->index('status', 'idx_status');
+            $table->index('status', 'idx_blog_posts_status');
             $table->index('published_at', 'idx_published_at');
             $table->index('student_id', 'idx_student_id');
             
