@@ -41,6 +41,17 @@ class Lessons extends Model
     }
 
     /**
+     * Get the videos associated with this lesson.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function videos(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Video::class, 'video_lesson', 'lesson_id', 'video_id')
+            ->withPivot('attached_at');
+    }
+
+    /**
      * Access course through module relationship
      */
     public function course(): Attribute
